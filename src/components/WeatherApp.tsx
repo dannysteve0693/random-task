@@ -1,20 +1,26 @@
 import React, { useState, useEffect } from "react";
 
+type WeatherDetail = {
+  main: string;
+  description: string;
+};
+
+type WeatherResponse = {
+  main: {
+    temp: number;
+  };
+  name: string;
+  weather: WeatherDetail[];
+};
+
 function WeatherApp() {
   const API_GEOCODING: string = "http://api.openweathermap.org/geo/1.0/direct";
   const API_WEATHER: string = "https://api.openweathermap.org/data/2.5/weather";
   const API_KEY: string = import.meta.env.VITE_OPENWEATHER_API_KEY;
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [cityName, setCityName] = useState<string>("");
-  const [latLong, setLatLong] = useState<{ lat: string; lon: string }>({
-    lat: "",
-    lon: "",
-  });
 
-  const [weatherData, setWeatherData] = useState<any>({});
-
-  useEffect(() => {}, []);
+  const [weatherData, setWeatherData] = useState<WeatherResponse | null>(null);
 
   const getLatLongGeoCoding = () => {
     fetch(API_GEOCODING + "?q=" + cityName + "&appid=" + API_KEY)
@@ -23,10 +29,6 @@ function WeatherApp() {
       })
       .then((data) => {
         console.log(data);
-        setLatLong({
-          lat: data[0].lat,
-          lon: data[0].lon,
-        });
 
         fetch(
           API_WEATHER +
@@ -67,7 +69,7 @@ function WeatherApp() {
       <div>
         <h5>Display current weather</h5>
         <>
-          {Object.keys(weatherData).length !== 0 ? (
+          {weatherData ? (
             <div>
               <ul>
                 <li>Name: {weatherData?.name}</li>
